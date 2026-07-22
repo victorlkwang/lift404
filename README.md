@@ -35,6 +35,7 @@ app/
   session/[date].tsx     A past session's detail
 components/
   NumberDropdown.tsx     Weight / reps dropdown picker
+  NumberPickerCell.tsx   Inline tap-to-edit cell for the sets table
   RestTimer.tsx          Between-sets countdown timer
 context/WorkoutContext.tsx
 lib/ storage.ts theme.ts time.ts
