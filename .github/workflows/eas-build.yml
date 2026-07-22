@@ -1,0 +1,65 @@
+name: EAS Build
+
+# Manual only — triggered from the Actions tab. This keeps EAS build minutes
+# and store submissions under your explicit control (they are never run on a
+# push). Requires an EXPO_TOKEN repository secret:
+#   1. Create a token at https://expo.dev/settings/access-tokens
+#   2. Add it under Settings -> Secrets and variables -> Actions as EXPO_TOKEN
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Platform to build
+        type: choice
+        default: ios
+        options: [ios, android, all]
+      profile:
+        description: EAS build profile (from eas.json)
+        type: choice
+        default: production
+        options: [production, preview, development]
+      submit:
+        description: Submit the build to the store after it finishes
+        type: boolean
+        default: false
+
+jobs:
+  build:
+    name: Build (${{ inputs.platform }} / ${{ inputs.profile }})
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fail early if EXPO_TOKEN is missing
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::EXPO_TOKEN secret is not set. See the comment at the top of this workflow."
+            exit 1
+          fi
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Set up EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: |
+          FLAGS="--non-interactive --no-wait --platform ${{ inputs.platform }} --profile ${{ inputs.profile }}"
+          if [ "${{ inputs.submit }}" = "true" ]; then
+            eas build $FLAGS --auto-submit
+          else
+            eas build $FLAGS
+          fi

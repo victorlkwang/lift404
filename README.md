@@ -109,3 +109,23 @@ that's an Apple rule, not a limitation of this app. Once you have the account:
 **Recommendation:** use **Expo Go** now (free, today), and only pay for the
 Apple Developer account later if you want the polished home-screen icon and
 TestFlight sharing.
+
+---
+
+## CI/CD
+
+GitHub Actions workflows live in `.github/workflows/`:
+
+- **`ci.yml`** — runs on every push to `main` and every pull request. Installs
+  dependencies, runs the TypeScript typecheck (`npm run typecheck`), and runs
+  `expo-doctor` (informational, non-blocking).
+- **`eas-build.yml`** — a **manual** workflow (Actions tab → *EAS Build* → *Run
+  workflow*) that builds the app in the cloud with EAS. Pick the platform,
+  build profile, and whether to auto-submit to the store. It never runs on a
+  push, so it won't consume build minutes unless you trigger it.
+
+  Requires an `EXPO_TOKEN` repository secret: create one at
+  <https://expo.dev/settings/access-tokens>, then add it under **Settings →
+  Secrets and variables → Actions**.
+
+Handy scripts: `npm run typecheck` and `npm run doctor`.
