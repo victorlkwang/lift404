@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, Vibration, View } from 'react-native';
+import {
+  AppState,
+  Pressable,
+  StyleSheet,
+  Text,
+  Vibration,
+  View,
+} from 'react-native';
+import { cancelRestDone, scheduleRestDone } from '../lib/notifications';
 import { colors, radius, spacing } from '../lib/theme';
 import { formatDuration } from '../lib/time';
 
@@ -13,33 +21,65 @@ function restLabel(s: number): string {
 
 // Rest-timer state lives in a hook so the workout screen can auto-start it
 // when a set is checked off, while the card below just renders that state.
+//
+// The countdown is driven off a wall-clock end time (`endsAt`) rather than a
+// decrementing counter, so it stays accurate after the app is backgrounded
+// (iOS suspends JS timers). A local notification is scheduled for the end
+// time so the user is alerted even while in another app.
 export function useRestTimer(defaultPreset = 90) {
   const [preset, setPreset] = useState(defaultPreset);
   const [remaining, setRemaining] = useState(0);
   const [running, setRunning] = useState(false);
-  const interval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [endsAt, setEndsAt] = useState<number | null>(null);
+  const notifId = useRef<string | null>(null);
 
+  // Tick from the wall clock so a resumed app shows the correct time.
   useEffect(() => {
-    if (!running) return;
-    interval.current = setInterval(() => {
-      setRemaining((r) => {
-        if (r <= 1) {
-          Vibration.vibrate([0, 400, 150, 400]);
-          setRunning(false);
-          return 0;
-        }
-        return r - 1;
-      });
-    }, 1000);
-    return () => {
-      if (interval.current) clearInterval(interval.current);
+    if (!running || endsAt == null) return;
+    const tick = () => {
+      const rem = Math.round((endsAt - Date.now()) / 1000);
+      if (rem <= 0) {
+        setRemaining(0);
+        setRunning(false);
+        setEndsAt(null);
+        Vibration.vibrate([0, 400, 150, 400]);
+      } else {
+        setRemaining(rem);
+      }
     };
-  }, [running]);
+    tick();
+    const iv = setInterval(tick, 500);
+    return () => clearInterval(iv);
+  }, [running, endsAt]);
+
+  // Re-sync the moment the app comes back to the foreground.
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active' && running && endsAt != null) {
+        const rem = Math.round((endsAt - Date.now()) / 1000);
+        if (rem <= 0) {
+          setRemaining(0);
+          setRunning(false);
+          setEndsAt(null);
+        } else {
+          setRemaining(rem);
+        }
+      }
+    });
+    return () => sub.remove();
+  }, [running, endsAt]);
 
   const start = useCallback(
     (secs?: number) => {
-      setRemaining(secs ?? preset);
+      const dur = secs ?? preset;
+      setEndsAt(Date.now() + dur * 1000);
+      setRemaining(dur);
       setRunning(true);
+      cancelRestDone(notifId.current);
+      notifId.current = null;
+      scheduleRestDone(dur).then((id) => {
+        notifId.current = id;
+      });
     },
     [preset]
   );
@@ -47,10 +87,21 @@ export function useRestTimer(defaultPreset = 90) {
   const stop = useCallback(() => {
     setRunning(false);
     setRemaining(0);
+    setEndsAt(null);
+    cancelRestDone(notifId.current);
+    notifId.current = null;
   }, []);
 
   const addTime = useCallback((delta: number) => {
-    setRemaining((r) => Math.max(0, r + delta));
+    setEndsAt((e) => {
+      if (e == null) return e;
+      const next = Math.max(Date.now() + 1000, e + delta * 1000);
+      cancelRestDone(notifId.current);
+      scheduleRestDone(Math.round((next - Date.now()) / 1000)).then((id) => {
+        notifId.current = id;
+      });
+      return next;
+    });
   }, []);
 
   return { preset, setPreset, remaining, running, start, stop, addTime };

@@ -1,72 +1,55 @@
-// Maps an exercise (by name) to an emoji icon by muscle group. This gives
-// every logged exercise and trained day a colorful "image" with no bundled
-// assets — emoji render as full-color glyphs on iOS. Swap this mapping for
-// real illustrations later by returning image sources instead.
+// Classifies an exercise (by name) into a muscle group. The group drives a
+// drawn vector badge (see components/ExerciseIcon.tsx) — original artwork, so
+// no image assets or licensing are needed. Swap the renderer for real
+// illustrations later without touching this classification.
 
-type IconRule = { icon: string; keywords: string[] };
+export type MuscleGroup =
+  | 'legs'
+  | 'arms'
+  | 'back'
+  | 'core'
+  | 'cardio'
+  | 'chest';
+
+type GroupRule = { group: MuscleGroup; keywords: string[] };
 
 // Order matters: the first rule whose keyword is found in the name wins, so
-// more specific groups (legs, arms) are listed before the generic barbell.
-const RULES: IconRule[] = [
+// more specific groups (legs, arms) are listed before the generic push/press.
+const RULES: GroupRule[] = [
   {
-    icon: '🦵',
-    keywords: [
-      'squat',
-      'lunge',
-      'leg',
-      'calf',
-      'glute',
-      'quad',
-      'hamstring',
-    ],
+    group: 'legs',
+    keywords: ['squat', 'lunge', 'leg', 'calf', 'glute', 'quad', 'hamstring'],
   },
-  { icon: '💪', keywords: ['curl', 'bicep', 'tricep', 'arm', 'preacher', 'hammer'] },
-  { icon: '🚣', keywords: ['row'] },
+  { group: 'arms', keywords: ['curl', 'bicep', 'tricep', 'arm', 'preacher', 'hammer'] },
+  { group: 'back', keywords: ['row', 'pull-up', 'pullup', 'chin-up', 'chinup', 'pulldown', 'lat', 'back', 'deadlift'] },
   {
-    icon: '🤸',
-    keywords: ['pull-up', 'pullup', 'chin-up', 'chinup', 'pulldown', 'lat', 'back'],
-  },
-  {
-    icon: '🧘',
+    group: 'core',
     keywords: ['ab', 'abs', 'core', 'plank', 'crunch', 'sit-up', 'situp', 'oblique'],
   },
   {
-    icon: '🏃',
+    group: 'cardio',
     keywords: ['run', 'treadmill', 'sprint', 'cardio', 'bike', 'cycl', 'elliptical', 'jump'],
   },
   {
-    icon: '🏋️',
-    keywords: [
-      'bench',
-      'press',
-      'chest',
-      'fly',
-      'push',
-      'dip',
-      'shoulder',
-      'overhead',
-      'deadlift',
-      'incline',
-      'decline',
-    ],
+    group: 'chest',
+    keywords: ['bench', 'press', 'chest', 'fly', 'push', 'dip', 'shoulder', 'overhead', 'incline', 'decline'],
   },
 ];
 
-const DEFAULT_ICON = '🏋️';
+const DEFAULT_GROUP: MuscleGroup = 'chest';
 
-export function iconForExercise(name: string): string {
+export function groupForExercise(name: string): MuscleGroup {
   const n = name.trim().toLowerCase();
   for (const rule of RULES) {
-    if (rule.keywords.some((k) => n.includes(k))) return rule.icon;
+    if (rule.keywords.some((k) => n.includes(k))) return rule.group;
   }
-  return DEFAULT_ICON;
+  return DEFAULT_GROUP;
 }
 
-// The icon that represents a whole session — its first exercise, or a
-// generic "worked out" icon for an empty session.
-export function iconForSession(session: {
+// The group that represents a whole session — its first exercise.
+export function groupForSession(session: {
   exercises: { name: string }[];
-}): string {
+}): MuscleGroup {
   const first = session.exercises[0]?.name;
-  return first ? iconForExercise(first) : '💪';
+  return first ? groupForExercise(first) : DEFAULT_GROUP;
 }
