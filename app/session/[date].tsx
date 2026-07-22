@@ -14,7 +14,8 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { iconForExercise } from '../../lib/exerciseIcons';
+import ExerciseIcon from '../../components/ExerciseIcon';
+import { groupForExercise } from '../../lib/exerciseIcons';
 import {
   WorkoutSession,
   deleteSession,
@@ -99,9 +100,10 @@ export default function SessionDetail() {
 
       {session.exercises.map((ex) => (
         <View key={ex.id} style={styles.exCard}>
-          <Text style={styles.exName}>
-            {iconForExercise(ex.name)}  {ex.name}
-          </Text>
+          <View style={styles.exNameRow}>
+            <ExerciseIcon group={groupForExercise(ex.name)} size={28} />
+            <Text style={styles.exName}>{ex.name}</Text>
+          </View>
           {ex.sets.length === 0 ? (
             <Text style={styles.dim}>No sets logged.</Text>
           ) : (
@@ -164,11 +166,17 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     gap: spacing.sm,
   },
+  exNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginBottom: spacing.xs,
+  },
   exName: {
     color: colors.text,
     fontSize: 17,
     fontWeight: '800',
-    marginBottom: spacing.xs,
+    flex: 1,
   },
   notesCard: {
     backgroundColor: colors.surface,

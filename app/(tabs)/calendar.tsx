@@ -3,7 +3,8 @@ import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { iconForSession } from '../../lib/exerciseIcons';
+import ExerciseIcon from '../../components/ExerciseIcon';
+import { groupForSession } from '../../lib/exerciseIcons';
 import { WorkoutSession, getSessions } from '../../lib/storage';
 import { colors, radius, spacing } from '../../lib/theme';
 import { formatDurationShort, prettyDate } from '../../lib/time';
@@ -23,7 +24,7 @@ export default function CalendarScreen() {
   // "image of you working out" on that day.
   const marked: Record<string, any> = {};
   for (const s of sessions) {
-    marked[s.date] = { trained: true, icon: iconForSession(s) };
+    marked[s.date] = { trained: true, group: groupForSession(s) };
   }
 
   const totalMin = Math.round(
@@ -67,7 +68,7 @@ export default function CalendarScreen() {
             >
               {trained ? (
                 <>
-                  <Text style={styles.dayIcon}>{marking.icon}</Text>
+                  <ExerciseIcon group={marking.group} size={24} />
                   <Text style={styles.dayNumSmall}>{date.day}</Text>
                 </>
               ) : (
@@ -109,7 +110,7 @@ export default function CalendarScreen() {
             style={styles.histRow}
             onPress={() => router.push(`/session/${s.date}`)}
           >
-            <Text style={styles.histIcon}>{iconForSession(s)}</Text>
+            <ExerciseIcon group={groupForSession(s)} size={34} />
             <View style={{ flex: 1 }}>
               <Text style={styles.histDate}>{prettyDate(s.date)}</Text>
               <Text style={styles.histMeta}>
@@ -153,7 +154,6 @@ const styles = StyleSheet.create({
   dayTrained: { backgroundColor: colors.surfaceAlt },
   dayNum: { color: colors.text, fontSize: 15, fontWeight: '600' },
   dayNumDim: { color: colors.border },
-  dayIcon: { fontSize: 20, lineHeight: 24 },
   dayNumSmall: { color: colors.textDim, fontSize: 10, fontWeight: '700' },
 
   summary: {
@@ -195,7 +195,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  histIcon: { fontSize: 26 },
   histDate: { color: colors.text, fontWeight: '700', fontSize: 15 },
   histMeta: { color: colors.textDim, fontSize: 13, marginTop: 2 },
   histDur: { color: colors.accent, fontWeight: '800' },

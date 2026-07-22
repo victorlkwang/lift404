@@ -16,10 +16,10 @@ phone** (AsyncStorage) — no account, no server, no internet needed.
   when you check off a set** and buzzes when rest is over. It's wall-clock based
   so it stays accurate after the app is backgrounded, and it schedules a **local
   notification** so you're alerted even while in another app.
-- **Calendar** — a "Memories"-style grid where every day you trained shows an
-  **icon of that workout** (by muscle group). Tap a trained day to revisit that
-  session (exercises, sets, volume, and duration). See totals for days trained
-  and total time.
+- **Calendar** — a "Memories"-style grid where every day you trained shows a
+  **drawn badge of that workout** (a color-coded, hand-authored SVG icon per
+  muscle group). Tap a trained day to revisit that session (exercises, sets,
+  volume, and duration). See totals for days trained and total time.
 
 Data model lives in `lib/storage.ts`; the running-workout state is in
 `context/WorkoutContext.tsx` (it persists, so the timer survives if the app is
@@ -37,6 +37,7 @@ app/
   workout.tsx            Active workout: timer, exercises, sets, rest timer
   session/[date].tsx     A past session's detail
 components/
+  ExerciseIcon.tsx       Drawn (SVG) muscle-group badge
   NumberDropdown.tsx     Weight / reps dropdown picker
   NumberPickerCell.tsx   Inline tap-to-edit cell for the sets table
   RestTimer.tsx          Between-sets countdown timer
