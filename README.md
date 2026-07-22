@@ -12,8 +12,10 @@ phone** (AsyncStorage) — no account, no server, no internet needed.
   exercises manually, and log each set with **dropdowns for weight (volume) and
   reps**. Press **End workout** and it saves to today's date and records how
   long you trained.
-- **Rest timer** — a countdown timer with 30s / 60s / 90s / 2m / 3m presets that
-  buzzes when your rest is over, right on the workout screen.
+- **Rest timer** — pick a preset (30s / 1m / 1:30 / 2m / 3m); it **auto-starts
+  when you check off a set** and buzzes when rest is over. It's wall-clock based
+  so it stays accurate after the app is backgrounded, and it schedules a **local
+  notification** so you're alerted even while in another app.
 - **Calendar** — a "Memories"-style grid where every day you trained shows an
   **icon of that workout** (by muscle group). Tap a trained day to revisit that
   session (exercises, sets, volume, and duration). See totals for days trained
@@ -39,7 +41,7 @@ components/
   NumberPickerCell.tsx   Inline tap-to-edit cell for the sets table
   RestTimer.tsx          Between-sets countdown timer
 context/WorkoutContext.tsx
-lib/ storage.ts theme.ts time.ts exerciseIcons.ts
+lib/ storage.ts theme.ts time.ts exerciseIcons.ts notifications.ts
 ```
 
 ---

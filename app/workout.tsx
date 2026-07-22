@@ -15,6 +15,7 @@ import NumberPickerCell from '../components/NumberPickerCell';
 import RestTimer, { useRestTimer } from '../components/RestTimer';
 import { useWorkout } from '../context/WorkoutContext';
 import { iconForExercise } from '../lib/exerciseIcons';
+import { ensureNotificationPermission } from '../lib/notifications';
 import { getPreviousExercise, SetEntry } from '../lib/storage';
 import { colors, radius, spacing } from '../lib/theme';
 import { formatDuration } from '../lib/time';
@@ -43,6 +44,12 @@ export default function WorkoutScreen() {
 
   const [newExercise, setNewExercise] = useState('');
   const rest = useRestTimer();
+
+  // Ask for notification permission up front so the rest-timer alert can fire
+  // while the app is backgrounded, rather than prompting mid-set.
+  useEffect(() => {
+    ensureNotificationPermission();
+  }, []);
 
   // If there's no active workout (e.g. opened directly), bounce home.
   if (!active) {
