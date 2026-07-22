@@ -14,9 +14,10 @@ phone** (AsyncStorage) — no account, no server, no internet needed.
   long you trained.
 - **Rest timer** — a countdown timer with 30s / 60s / 90s / 2m / 3m presets that
   buzzes when your rest is over, right on the workout screen.
-- **Calendar** — every day you trained is **marked**. Tap a marked day to
-  revisit that session (exercises, sets, volume, and duration). See totals for
-  days trained and total time.
+- **Calendar** — a "Memories"-style grid where every day you trained shows an
+  **icon of that workout** (by muscle group). Tap a trained day to revisit that
+  session (exercises, sets, volume, and duration). See totals for days trained
+  and total time.
 
 Data model lives in `lib/storage.ts`; the running-workout state is in
 `context/WorkoutContext.tsx` (it persists, so the timer survives if the app is
@@ -38,7 +39,7 @@ components/
   NumberPickerCell.tsx   Inline tap-to-edit cell for the sets table
   RestTimer.tsx          Between-sets countdown timer
 context/WorkoutContext.tsx
-lib/ storage.ts theme.ts time.ts
+lib/ storage.ts theme.ts time.ts exerciseIcons.ts
 ```
 
 ---

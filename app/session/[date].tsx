@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { iconForExercise } from '../../lib/exerciseIcons';
 import {
   WorkoutSession,
   deleteSession,
@@ -98,7 +99,9 @@ export default function SessionDetail() {
 
       {session.exercises.map((ex) => (
         <View key={ex.id} style={styles.exCard}>
-          <Text style={styles.exName}>{ex.name}</Text>
+          <Text style={styles.exName}>
+            {iconForExercise(ex.name)}  {ex.name}
+          </Text>
           {ex.sets.length === 0 ? (
             <Text style={styles.dim}>No sets logged.</Text>
           ) : (

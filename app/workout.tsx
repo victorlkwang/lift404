@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import NumberPickerCell from '../components/NumberPickerCell';
 import RestTimer from '../components/RestTimer';
 import { useWorkout } from '../context/WorkoutContext';
+import { iconForExercise } from '../lib/exerciseIcons';
 import { getPreviousExercise, SetEntry } from '../lib/storage';
 import { colors, radius, spacing } from '../lib/theme';
 import { formatDuration } from '../lib/time';
@@ -244,6 +245,7 @@ function ExerciseCard({
         >
           <Text style={styles.chev}>{collapsed ? '▾' : '▴'}</Text>
         </Pressable>
+        <Text style={styles.exIcon}>{iconForExercise(ex.name)}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.exName} numberOfLines={1}>
             {ex.name}
@@ -461,6 +463,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   chev: { color: colors.accent, fontSize: 18, fontWeight: '800' },
+  exIcon: { fontSize: 22 },
   exName: { color: colors.text, fontSize: 18, fontWeight: '800' },
   exSub: { color: colors.textDim, fontSize: 12, marginTop: 2 },
   kebab: { color: colors.textDim, fontSize: 22, fontWeight: '800', width: 20, textAlign: 'center' },
