@@ -6,6 +6,7 @@ export type SetEntry = {
   id: string;
   weight: number; // "volume" — the load lifted
   reps: number;
+  done?: boolean; // marked complete via the set's checkmark
 };
 
 export type ExerciseEntry = {
@@ -21,6 +22,7 @@ export type WorkoutSession = {
   endedAt: number; // epoch ms
   durationSec: number;
   exercises: ExerciseEntry[];
+  notes?: string;
 };
 
 export type Routine = {
@@ -34,6 +36,7 @@ export type ActiveWorkout = {
   startedAt: number; // epoch ms
   routineName?: string;
   exercises: ExerciseEntry[];
+  notes?: string;
 };
 
 // ---- Keys --------------------------------------------------------------
@@ -81,6 +84,23 @@ export async function saveSession(session: WorkoutSession): Promise<void> {
   if (idx >= 0) list[idx] = session;
   else list.push(session);
   await writeJSON(K.sessions, list);
+}
+
+// The sets logged for an exercise the last time it was performed, used to
+// show the "PREV" column on the active workout screen. Since the in-progress
+// workout isn't saved yet, the newest saved session is the previous one.
+export async function getPreviousExercise(
+  name: string
+): Promise<SetEntry[] | undefined> {
+  const list = await getSessions(); // newest first
+  const target = name.trim().toLowerCase();
+  for (const s of list) {
+    const ex = s.exercises.find(
+      (e) => e.name.trim().toLowerCase() === target
+    );
+    if (ex && ex.sets.length) return ex.sets;
+  }
+  return undefined;
 }
 
 export async function deleteSession(id: string): Promise<void> {

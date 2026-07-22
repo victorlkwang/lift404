@@ -14,6 +14,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { iconForExercise } from '../../lib/exerciseIcons';
 import {
   WorkoutSession,
   deleteSession,
@@ -89,9 +90,18 @@ export default function SessionDetail() {
         <Stat label="Volume" value={`${totalVol.toLocaleString()}`} />
       </View>
 
+      {session.notes ? (
+        <View style={styles.notesCard}>
+          <Text style={styles.notesLabel}>NOTES</Text>
+          <Text style={styles.notesText}>{session.notes}</Text>
+        </View>
+      ) : null}
+
       {session.exercises.map((ex) => (
         <View key={ex.id} style={styles.exCard}>
-          <Text style={styles.exName}>{ex.name}</Text>
+          <Text style={styles.exName}>
+            {iconForExercise(ex.name)}  {ex.name}
+          </Text>
           {ex.sets.length === 0 ? (
             <Text style={styles.dim}>No sets logged.</Text>
           ) : (
@@ -160,6 +170,22 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     marginBottom: spacing.xs,
   },
+  notesCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    gap: spacing.xs,
+  },
+  notesLabel: {
+    color: colors.textDim,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  notesText: { color: colors.text, fontSize: 15, lineHeight: 21 },
   setRow: {
     flexDirection: 'row',
     alignItems: 'center',

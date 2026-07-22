@@ -14,9 +14,10 @@ phone** (AsyncStorage) — no account, no server, no internet needed.
   long you trained.
 - **Rest timer** — a countdown timer with 30s / 60s / 90s / 2m / 3m presets that
   buzzes when your rest is over, right on the workout screen.
-- **Calendar** — every day you trained is **marked**. Tap a marked day to
-  revisit that session (exercises, sets, volume, and duration). See totals for
-  days trained and total time.
+- **Calendar** — a "Memories"-style grid where every day you trained shows an
+  **icon of that workout** (by muscle group). Tap a trained day to revisit that
+  session (exercises, sets, volume, and duration). See totals for days trained
+  and total time.
 
 Data model lives in `lib/storage.ts`; the running-workout state is in
 `context/WorkoutContext.tsx` (it persists, so the timer survives if the app is
@@ -35,9 +36,10 @@ app/
   session/[date].tsx     A past session's detail
 components/
   NumberDropdown.tsx     Weight / reps dropdown picker
+  NumberPickerCell.tsx   Inline tap-to-edit cell for the sets table
   RestTimer.tsx          Between-sets countdown timer
 context/WorkoutContext.tsx
-lib/ storage.ts theme.ts time.ts
+lib/ storage.ts theme.ts time.ts exerciseIcons.ts
 ```
 
 ---
@@ -107,3 +109,23 @@ that's an Apple rule, not a limitation of this app. Once you have the account:
 **Recommendation:** use **Expo Go** now (free, today), and only pay for the
 Apple Developer account later if you want the polished home-screen icon and
 TestFlight sharing.
+
+---
+
+## CI/CD
+
+GitHub Actions workflows live in `.github/workflows/`:
+
+- **`ci.yml`** — runs on every push to `main` and every pull request. Installs
+  dependencies, runs the TypeScript typecheck (`npm run typecheck`), and runs
+  `expo-doctor` (informational, non-blocking).
+- **`eas-build.yml`** — a **manual** workflow (Actions tab → *EAS Build* → *Run
+  workflow*) that builds the app in the cloud with EAS. Pick the platform,
+  build profile, and whether to auto-submit to the store. It never runs on a
+  push, so it won't consume build minutes unless you trigger it.
+
+  Requires an `EXPO_TOKEN` repository secret: create one at
+  <https://expo.dev/settings/access-tokens>, then add it under **Settings →
+  Secrets and variables → Actions**.
+
+Handy scripts: `npm run typecheck` and `npm run doctor`.

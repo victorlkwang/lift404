@@ -24,8 +24,16 @@ type WorkoutContextValue = {
   startWorkout: (routineName?: string, exerciseNames?: string[]) => void;
   addExercise: (name: string) => void;
   removeExercise: (exerciseId: string) => void;
-  addSet: (exerciseId: string, weight: number, reps: number) => void;
+  renameExercise: (exerciseId: string, name: string) => void;
+  moveExercise: (exerciseId: string, dir: -1 | 1) => void;
+  addSet: (exerciseId: string, weight?: number, reps?: number) => void;
+  updateSet: (
+    exerciseId: string,
+    setId: string,
+    patch: Partial<Omit<SetEntry, 'id'>>
+  ) => void;
   removeSet: (exerciseId: string, setId: string) => void;
+  setNotes: (notes: string) => void;
   endWorkout: () => Promise<WorkoutSession | null>;
   cancelWorkout: () => Promise<void>;
 };
@@ -110,15 +118,78 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const renameExercise = useCallback((exerciseId: string, name: string) => {
+    setActive((cur) => {
+      if (!cur) return cur;
+      const next = {
+        ...cur,
+        exercises: cur.exercises.map((e) =>
+          e.id === exerciseId ? { ...e, name } : e
+        ),
+      };
+      setActiveWorkout(next);
+      return next;
+    });
+  }, []);
+
+  const moveExercise = useCallback((exerciseId: string, dir: -1 | 1) => {
+    setActive((cur) => {
+      if (!cur) return cur;
+      const idx = cur.exercises.findIndex((e) => e.id === exerciseId);
+      const target = idx + dir;
+      if (idx < 0 || target < 0 || target >= cur.exercises.length) return cur;
+      const exercises = [...cur.exercises];
+      [exercises[idx], exercises[target]] = [exercises[target], exercises[idx]];
+      const next = { ...cur, exercises };
+      setActiveWorkout(next);
+      return next;
+    });
+  }, []);
+
   const addSet = useCallback(
-    (exerciseId: string, weight: number, reps: number) => {
+    (exerciseId: string, weight?: number, reps?: number) => {
       setActive((cur) => {
         if (!cur) return cur;
-        const set: SetEntry = { id: uid(), weight, reps };
+        const ex = cur.exercises.find((e) => e.id === exerciseId);
+        const last = ex?.sets[ex.sets.length - 1];
+        const set: SetEntry = {
+          id: uid(),
+          weight: weight ?? last?.weight ?? 20,
+          reps: reps ?? last?.reps ?? 10,
+          done: false,
+        };
         const next = {
           ...cur,
           exercises: cur.exercises.map((e) =>
             e.id === exerciseId ? { ...e, sets: [...e.sets, set] } : e
+          ),
+        };
+        setActiveWorkout(next);
+        return next;
+      });
+    },
+    []
+  );
+
+  const updateSet = useCallback(
+    (
+      exerciseId: string,
+      setId: string,
+      patch: Partial<Omit<SetEntry, 'id'>>
+    ) => {
+      setActive((cur) => {
+        if (!cur) return cur;
+        const next = {
+          ...cur,
+          exercises: cur.exercises.map((e) =>
+            e.id === exerciseId
+              ? {
+                  ...e,
+                  sets: e.sets.map((s) =>
+                    s.id === setId ? { ...s, ...patch } : s
+                  ),
+                }
+              : e
           ),
         };
         setActiveWorkout(next);
@@ -144,6 +215,15 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setNotes = useCallback((notes: string) => {
+    setActive((cur) => {
+      if (!cur) return cur;
+      const next = { ...cur, notes };
+      setActiveWorkout(next);
+      return next;
+    });
+  }, []);
+
   const endWorkout = useCallback(async (): Promise<WorkoutSession | null> => {
     if (!active) return null;
     const endedAt = Date.now();
@@ -154,6 +234,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
       endedAt,
       durationSec: Math.floor((endedAt - active.startedAt) / 1000),
       exercises: active.exercises,
+      notes: active.notes,
     };
     await saveSession(session);
     await setActiveWorkout(null);
@@ -175,8 +256,12 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         startWorkout,
         addExercise,
         removeExercise,
+        renameExercise,
+        moveExercise,
         addSet,
+        updateSet,
         removeSet,
+        setNotes,
         endWorkout,
         cancelWorkout,
       }}

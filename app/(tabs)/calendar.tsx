@@ -1,11 +1,12 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { iconForSession } from '../../lib/exerciseIcons';
 import { WorkoutSession, getSessions } from '../../lib/storage';
 import { colors, radius, spacing } from '../../lib/theme';
-import { formatDurationShort, prettyDate, toDateKey } from '../../lib/time';
+import { formatDurationShort, prettyDate } from '../../lib/time';
 
 export default function CalendarScreen() {
   const router = useRouter();
@@ -18,22 +19,12 @@ export default function CalendarScreen() {
     }, [])
   );
 
-  const today = toDateKey();
-
-  // Build the marked-days map: every day with a workout gets a dot + highlight.
+  // Map each trained day to its workout icon so the calendar can render an
+  // "image of you working out" on that day.
   const marked: Record<string, any> = {};
   for (const s of sessions) {
-    marked[s.date] = {
-      marked: true,
-      dotColor: colors.green,
-      selected: true,
-      selectedColor: colors.accentDim,
-    };
+    marked[s.date] = { trained: true, icon: iconForSession(s) };
   }
-  if (!marked[today]) {
-    marked[today] = { marked: false };
-  }
-  marked[today] = { ...marked[today], today: true };
 
   const totalMin = Math.round(
     sessions.reduce((n, s) => n + s.durationSec, 0) / 60
@@ -42,25 +33,55 @@ export default function CalendarScreen() {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}
+      contentContainerStyle={{
+        paddingTop: insets.top + spacing.md,
+        paddingBottom: insets.bottom + 40,
+      }}
     >
+      <Text style={styles.screenTitle}>📅 Memories</Text>
+
       <Calendar
+        style={styles.calendar}
         theme={{
           calendarBackground: colors.bg,
           monthTextColor: colors.text,
           textMonthFontWeight: '800',
-          dayTextColor: colors.text,
-          textDisabledColor: colors.border,
-          todayTextColor: colors.accent,
-          arrowColor: colors.accent,
           textSectionTitleColor: colors.textDim,
-          selectedDayTextColor: '#fff',
+          arrowColor: colors.accent,
         }}
         markedDates={marked}
-        onDayPress={(d) => {
-          if (marked[d.dateString]?.marked) {
-            router.push(`/session/${d.dateString}`);
-          }
+        dayComponent={({ date, state, marking }: any) => {
+          const trained = !!marking?.trained;
+          const isToday = state === 'today';
+          return (
+            <Pressable
+              disabled={!trained}
+              onPress={() =>
+                trained && router.push(`/session/${date.dateString}`)
+              }
+              style={[
+                styles.dayCell,
+                isToday && styles.dayToday,
+                trained && styles.dayTrained,
+              ]}
+            >
+              {trained ? (
+                <>
+                  <Text style={styles.dayIcon}>{marking.icon}</Text>
+                  <Text style={styles.dayNumSmall}>{date.day}</Text>
+                </>
+              ) : (
+                <Text
+                  style={[
+                    styles.dayNum,
+                    state === 'disabled' && styles.dayNumDim,
+                  ]}
+                >
+                  {date.day}
+                </Text>
+              )}
+            </Pressable>
+          );
         }}
       />
 
@@ -78,17 +99,17 @@ export default function CalendarScreen() {
       <Text style={styles.listTitle}>History</Text>
       {sessions.length === 0 ? (
         <Text style={styles.empty}>
-          No workouts logged yet. Tap a marked day here after you train to
-          revisit that session.
+          No workouts logged yet. Train a day and it shows up here with your
+          workout badge — tap it to revisit that session.
         </Text>
       ) : (
         sessions.map((s) => (
-          <View
+          <Pressable
             key={s.id}
             style={styles.histRow}
-            onTouchEnd={() => router.push(`/session/${s.date}`)}
+            onPress={() => router.push(`/session/${s.date}`)}
           >
-            <View style={styles.dot} />
+            <Text style={styles.histIcon}>{iconForSession(s)}</Text>
             <View style={{ flex: 1 }}>
               <Text style={styles.histDate}>{prettyDate(s.date)}</Text>
               <Text style={styles.histMeta}>
@@ -99,7 +120,7 @@ export default function CalendarScreen() {
             <Text style={styles.histDur}>
               {formatDurationShort(s.durationSec)}
             </Text>
-          </View>
+          </Pressable>
         ))
       )}
     </ScrollView>
@@ -108,6 +129,33 @@ export default function CalendarScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
+  screenTitle: {
+    color: colors.text,
+    fontSize: 24,
+    fontWeight: '800',
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+  },
+  calendar: { backgroundColor: colors.bg, paddingBottom: spacing.md },
+
+  // Memories-style day cell
+  dayCell: {
+    width: 40,
+    height: 46,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dayToday: { borderColor: colors.accent, borderWidth: 2 },
+  dayTrained: { backgroundColor: colors.surfaceAlt },
+  dayNum: { color: colors.text, fontSize: 15, fontWeight: '600' },
+  dayNumDim: { color: colors.border },
+  dayIcon: { fontSize: 20, lineHeight: 24 },
+  dayNumSmall: { color: colors.textDim, fontSize: 10, fontWeight: '700' },
+
   summary: {
     flexDirection: 'row',
     gap: spacing.md,
@@ -147,12 +195,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.green,
-  },
+  histIcon: { fontSize: 26 },
   histDate: { color: colors.text, fontWeight: '700', fontSize: 15 },
   histMeta: { color: colors.textDim, fontSize: 13, marginTop: 2 },
   histDur: { color: colors.accent, fontWeight: '800' },
