@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import NumberPickerCell from '../components/NumberPickerCell';
-import RestTimer from '../components/RestTimer';
+import RestTimer, { useRestTimer } from '../components/RestTimer';
 import { useWorkout } from '../context/WorkoutContext';
 import { iconForExercise } from '../lib/exerciseIcons';
 import { getPreviousExercise, SetEntry } from '../lib/storage';
@@ -42,6 +42,7 @@ export default function WorkoutScreen() {
   } = useWorkout();
 
   const [newExercise, setNewExercise] = useState('');
+  const rest = useRestTimer();
 
   // If there's no active workout (e.g. opened directly), bounce home.
   if (!active) {
@@ -129,7 +130,7 @@ export default function WorkoutScreen() {
           multiline
         />
 
-        <RestTimer />
+        <RestTimer {...rest} />
 
         {active.exercises.map((ex, i) => (
           <ExerciseCard
@@ -143,6 +144,7 @@ export default function WorkoutScreen() {
             onAddSet={() => addSet(ex.id)}
             onUpdateSet={(setId, patch) => updateSet(ex.id, setId, patch)}
             onRemoveSet={(setId) => removeSet(ex.id, setId)}
+            onCompleteSet={() => rest.start()}
           />
         ))}
 
@@ -187,6 +189,7 @@ function ExerciseCard({
   onAddSet,
   onUpdateSet,
   onRemoveSet,
+  onCompleteSet,
 }: {
   ex: Ex;
   canMoveUp: boolean;
@@ -197,6 +200,7 @@ function ExerciseCard({
   onAddSet: () => void;
   onUpdateSet: (setId: string, patch: Partial<Omit<SetEntry, 'id'>>) => void;
   onRemoveSet: (setId: string) => void;
+  onCompleteSet: () => void;
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -301,7 +305,11 @@ function ExerciseCard({
               </View>
               <View style={styles.colCheck}>
                 <Pressable
-                  onPress={() => onUpdateSet(s.id, { done: !s.done })}
+                  onPress={() => {
+                    const nowDone = !s.done;
+                    onUpdateSet(s.id, { done: nowDone });
+                    if (nowDone) onCompleteSet();
+                  }}
                   onLongPress={() => onRemoveSet(s.id)}
                   hitSlop={8}
                   style={[styles.check, s.done && styles.checkDone]}
