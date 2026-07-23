@@ -8,12 +8,13 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <WorkoutProvider>
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         <Stack
           screenOptions={{
-            headerStyle: { backgroundColor: colors.bg },
-            headerTintColor: colors.text,
-            headerTitleStyle: { fontWeight: '800' },
+            headerStyle: { backgroundColor: colors.surface },
+            headerShadowVisible: false,
+            headerTintColor: colors.accent,
+            headerTitleStyle: { fontWeight: '800', color: colors.text },
             contentStyle: { backgroundColor: colors.bg },
           }}
         >

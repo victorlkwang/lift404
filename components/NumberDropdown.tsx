@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   chevron: { color: colors.textDim, fontSize: 14 },
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: colors.scrim,
     justifyContent: 'center',
     padding: spacing.xl,
   },
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     borderRadius: radius.sm,
   },
-  optionSelected: { backgroundColor: colors.accentDim },
+  optionSelected: { backgroundColor: colors.accentSoft },
   optionText: { color: colors.text, fontSize: 18, textAlign: 'center' },
-  optionTextSelected: { fontWeight: '700', color: '#fff' },
+  optionTextSelected: { fontWeight: '700', color: colors.accentDeep },
 });

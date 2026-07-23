@@ -21,7 +21,7 @@ import {
   deleteSession,
   getSessionByDate,
 } from '../../lib/storage';
-import { colors, radius, spacing } from '../../lib/theme';
+import { colors, radius, shadow, spacing } from '../../lib/theme';
 import { formatDuration, prettyDate } from '../../lib/time';
 
 export default function SessionDetail() {
@@ -151,20 +151,18 @@ const styles = StyleSheet.create({
     flexBasis: '45%',
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.lg,
+    ...shadow.card,
   },
   statValue: { color: colors.text, fontSize: 20, fontWeight: '800' },
   statLabel: { color: colors.textDim, fontSize: 12, marginTop: spacing.xs },
   exCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.lg,
     marginBottom: spacing.md,
     gap: spacing.sm,
+    ...shadow.card,
   },
   exNameRow: {
     flexDirection: 'row',
@@ -181,11 +179,10 @@ const styles = StyleSheet.create({
   notesCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.lg,
     marginBottom: spacing.md,
     gap: spacing.xs,
+    ...shadow.card,
   },
   notesLabel: {
     color: colors.textDim,

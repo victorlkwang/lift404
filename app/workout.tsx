@@ -18,7 +18,7 @@ import { useWorkout } from '../context/WorkoutContext';
 import { groupForExercise } from '../lib/exerciseIcons';
 import { ensureNotificationPermission } from '../lib/notifications';
 import { getPreviousExercise, SetEntry } from '../lib/storage';
-import { colors, radius, spacing } from '../lib/theme';
+import { colors, radius, shadow, spacing } from '../lib/theme';
 import { formatDuration } from '../lib/time';
 
 // Dropdown option ranges.
@@ -464,10 +464,9 @@ const styles = StyleSheet.create({
   exCard: {
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.lg,
     gap: spacing.md,
+    ...shadow.card,
   },
   exHeader: {
     flexDirection: 'row',
@@ -538,7 +537,7 @@ const styles = StyleSheet.create({
   // ⋮ menu
   menuBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: colors.scrim,
     justifyContent: 'center',
     padding: spacing.xl,
   },

@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ExerciseIcon from '../../components/ExerciseIcon';
 import { groupForSession } from '../../lib/exerciseIcons';
 import { WorkoutSession, getSessions } from '../../lib/storage';
-import { colors, radius, spacing } from '../../lib/theme';
+import { colors, radius, shadow, spacing } from '../../lib/theme';
 import { formatDurationShort, prettyDate } from '../../lib/time';
 
 export default function CalendarScreen() {
@@ -49,6 +49,9 @@ export default function CalendarScreen() {
           textMonthFontWeight: '800',
           textSectionTitleColor: colors.textDim,
           arrowColor: colors.accent,
+          todayTextColor: colors.accent,
+          dayTextColor: colors.text,
+          textDisabledColor: colors.border,
         }}
         markedDates={marked}
         dayComponent={({ date, state, marking }: any) => {
@@ -165,9 +168,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.lg,
+    ...shadow.card,
   },
   summaryNum: { color: colors.text, fontSize: 22, fontWeight: '800' },
   summaryLabel: { color: colors.textDim, fontSize: 12, marginTop: spacing.xs },
@@ -192,8 +194,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     padding: spacing.lg,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
+    ...shadow.card,
   },
   histDate: { color: colors.text, fontWeight: '700', fontSize: 15 },
   histMeta: { color: colors.textDim, fontSize: 13, marginTop: 2 },
