@@ -7,10 +7,10 @@ import { MuscleGroup } from '../lib/exerciseIcons';
 // Each group gets its own color and glyph so workouts read at a glance.
 
 const COLORS: Record<MuscleGroup, string> = {
-  legs: '#37D67A',
-  arms: '#7C5CFF',
-  back: '#4C8DFF',
-  core: '#FFB020',
+  legs: '#17B26A',
+  arms: '#6C7BFF',
+  back: '#1E84E6',
+  core: '#F2A007',
   cardio: '#FF5C8A',
   chest: '#F4506A',
 };

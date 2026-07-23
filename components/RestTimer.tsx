@@ -216,11 +216,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   presetActive: {
-    backgroundColor: colors.accentDim,
+    backgroundColor: colors.accentSoft,
     borderColor: colors.accent,
   },
   presetText: { color: colors.textDim, fontWeight: '700', fontSize: 13 },
-  presetTextActive: { color: '#fff' },
+  presetTextActive: { color: colors.accentDeep },
 
   startBtn: {
     backgroundColor: colors.accent,
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     alignItems: 'center',
   },
-  startText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  startText: { color: colors.onAccent, fontWeight: '700', fontSize: 16 },
   hint: { color: colors.textDim, fontSize: 11, textAlign: 'center' },
 
   // Running (countdown) view

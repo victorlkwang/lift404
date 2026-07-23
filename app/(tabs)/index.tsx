@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import BrandMark from '../../components/BrandMark';
 import { useWorkout } from '../../context/WorkoutContext';
 import {
   Routine,
@@ -19,7 +20,7 @@ import {
   getSessions,
   saveRoutine,
 } from '../../lib/storage';
-import { colors, radius, spacing } from '../../lib/theme';
+import { colors, radius, shadow, spacing } from '../../lib/theme';
 import { prettyDate, uid } from '../../lib/time';
 
 export default function Home() {
@@ -73,8 +74,23 @@ export default function Home() {
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={{ padding: spacing.lg, paddingBottom: insets.bottom + 40 }}
+      contentContainerStyle={{
+        padding: spacing.lg,
+        paddingTop: insets.top + spacing.md,
+        paddingBottom: insets.bottom + 40,
+      }}
     >
+      {/* Branded header */}
+      <View style={styles.hero}>
+        <View style={styles.markWrap}>
+          <BrandMark size={34} strokeWidth={7} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.brandWord}>Lift 404</Text>
+          <Text style={styles.brandTag}>Every rep, on the way up.</Text>
+        </View>
+      </View>
+
       {/* Stats */}
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
@@ -251,7 +267,9 @@ function RoutineEditor({
                 onClose();
               }}
             >
-              <Text style={styles.editorBtnText}>Cancel</Text>
+              <Text style={[styles.editorBtnText, styles.editorCancelText]}>
+                Cancel
+              </Text>
             </Pressable>
             <Pressable
               style={[styles.editorBtn, styles.editorSave]}
@@ -268,14 +286,30 @@ function RoutineEditor({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
+  hero: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  markWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...shadow.card,
+  },
+  brandWord: { color: colors.text, fontSize: 26, fontWeight: '800', letterSpacing: -0.5 },
+  brandTag: { color: colors.textDim, fontSize: 13, marginTop: 2 },
   statsRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
   statCard: {
     flex: 1,
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.lg,
+    ...shadow.card,
   },
   statNum: { color: colors.text, fontSize: 20, fontWeight: '800' },
   statLabel: { color: colors.textDim, fontSize: 12, marginTop: spacing.xs },
@@ -284,9 +318,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: spacing.xl,
     marginBottom: spacing.xl,
+    ...shadow.lifted,
   },
-  resumeBtn: { backgroundColor: colors.green },
-  startBtnText: { color: '#fff', fontSize: 20, fontWeight: '800' },
+  resumeBtn: { backgroundColor: colors.green, shadowColor: colors.green },
+  startBtnText: { color: colors.onAccent, fontSize: 20, fontWeight: '800' },
   startBtnSub: { color: 'rgba(255,255,255,0.85)', marginTop: spacing.xs },
   sectionHeader: {
     flexDirection: 'row',
@@ -305,10 +340,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: colors.surface,
     borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
     marginBottom: spacing.md,
     overflow: 'hidden',
+    ...shadow.card,
   },
   routineMain: { flex: 1, padding: spacing.lg },
   routineName: { color: colors.text, fontSize: 16, fontWeight: '700' },
@@ -316,7 +350,7 @@ const styles = StyleSheet.create({
   routineStart: {
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
-    backgroundColor: colors.surfaceAlt,
+    backgroundColor: colors.accentSoft,
   },
   routineStartText: { color: colors.accent, fontWeight: '800' },
   hint: {
@@ -328,7 +362,7 @@ const styles = StyleSheet.create({
   // editor
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.65)',
+    backgroundColor: colors.scrim,
     justifyContent: 'flex-end',
   },
   editor: {
@@ -376,5 +410,6 @@ const styles = StyleSheet.create({
   },
   editorCancel: { backgroundColor: colors.surfaceAlt },
   editorSave: { backgroundColor: colors.accent },
-  editorBtnText: { color: '#fff', fontWeight: '700', fontSize: 15 },
+  editorBtnText: { color: colors.onAccent, fontWeight: '700', fontSize: 15 },
+  editorCancelText: { color: colors.text },
 });
